@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1063367061149",
+    "project_id": "go-campus-1ca29",
+    "storage_bucket": "go-campus-1ca29.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1063367061149:android:bf98a1a03c3e079e192e74",
+        "android_client_info": {
+          "package_name": "com.example.go_campus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlp9_G1voon2BDaoSjbfHJLTANBSqdWqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
