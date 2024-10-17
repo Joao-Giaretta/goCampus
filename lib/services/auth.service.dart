@@ -22,12 +22,26 @@ class AuthService {
     await _auth.signOut();
   }
 
+  // Método para registrar usuário
+  Future<User?> registerWithEmailAndPassword(
+      String email, String password) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      return result.user;
+    } catch (e) {
+      return null;
+    }
+  }
+
   // Método para redefinir Senha
   Future<void> resetPassword(String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
     } catch (e) {
-      print(e);
+      return;
     }
   }
 }

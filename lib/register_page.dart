@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_campus/login_screen.dart';
+import 'services/auth.service.dart';
+import 'services/date_picker_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -11,6 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool isPersonPhysical = true;
   bool _obscureText = true;
   bool _obscureTextConfirm = true;
+  DateTime? _selectedDate;
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -22,6 +26,24 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _cidadeController = TextEditingController();
   final TextEditingController _numeroController = TextEditingController();
   final TextEditingController _estadoController = TextEditingController();
+  final TextEditingController _dataNascimentoController = TextEditingController();
+
+  void _register() async {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
+    var user =
+        await AuthService().registerWithEmailAndPassword(email, password);
+    if (user != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Cadastro bem-sucedido!')));
+      // Navegar para a tela principal ou fazer outra ação após cadastro
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Erro ao fazer cadastro')));
+    }
+  }
 
   @override
   Widget build(BuildContext content) {
@@ -84,6 +106,21 @@ class _RegisterPageState extends State<RegisterPage> {
                         labelText: 'CPF', prefixIcon: Icon(Icons.description)),
                   ),
                   const SizedBox(height: 20),
+                  TextField(
+                    controller: _dataNascimentoController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Data de Nascimento',
+                      prefixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () {
+                      DatePickerService.selectDate(
+                        context: context,
+                        controller: _dataNascimentoController,
+                        initialDate: _selectedDate,
+                      );
+                    },
+                  )
                 ] else ...[
                   TextField(
                     controller: _cpfCnpjController,
@@ -139,8 +176,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Senha',
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscureText ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(_obscureText
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _obscureText = !_obscureText;
@@ -157,8 +195,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     labelText: 'Confirmar Senha',
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscureTextConfirm ? Icons.visibility : Icons.visibility_off),
+                      icon: Icon(_obscureTextConfirm
+                          ? Icons.visibility
+                          : Icons.visibility_off),
                       onPressed: () {
                         setState(() {
                           _obscureTextConfirm = !_obscureTextConfirm;
@@ -170,9 +209,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {
-                      // implementar cadastro
-                    },
+                    onPressed: _register,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(
