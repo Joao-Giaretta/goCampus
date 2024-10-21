@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_campus/login_screen.dart';
-import 'services/auth.service.dart';
+import 'package:go_campus/services/register_service.dart';
+import 'services/auth_service.dart';
 import 'services/date_picker_service.dart';
+import 'services/register_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -28,6 +30,8 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _estadoController = TextEditingController();
   final TextEditingController _dataNascimentoController = TextEditingController();
 
+  final RegisterService _registerService = RegisterService();
+
   void _register() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -43,6 +47,23 @@ class _RegisterPageState extends State<RegisterPage> {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao fazer cadastro')));
     }
+  }
+
+  void _registerServer() async {
+    String name = _nameController.text.trim();
+    String email = _emailController.text.trim();
+    String birthday = _dataNascimentoController.text.trim();
+
+    await _registerService.registerUser(
+      name: name,
+      email: email,
+      birthday: birthday,
+    );
+
+    // Exibe uma mensagem de sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Dados enviados ao servidor!'))
+    );
   }
 
   @override
@@ -209,7 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _register,
+                    onPressed: _registerServer,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(

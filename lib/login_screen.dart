@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'services/auth.service.dart';
+import 'services/auth_service.dart';
 import 'register_page.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   'Seja bem-vindo ao GoCampus!',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 20),
                 const Text('Faça login ou cadastre-se para continuar',
                     style: TextStyle(fontSize: 16, color: Colors.grey)),
                 const SizedBox(height: 30),
