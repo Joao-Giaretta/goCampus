@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
 
 class SocketService {
   static const String _host = '10.0.2.2';
@@ -15,6 +14,7 @@ class SocketService {
 
       // Serializa o mapa para Json e envia
       String jsonMessage = jsonEncode(message);
+      //String jsonMessage = "{\"name\":\"João\", \"email\":\"joao@gmail.com\", \"birthday\":\"10/10/10\"}";
       socket.write(jsonMessage);
       print('Mensagem enviada: $jsonMessage');
 
@@ -22,11 +22,9 @@ class SocketService {
       socket.listen((List<int> event) {
         String response = String.fromCharCodes(event);
         try {
-          // Tenta decodificar a resposta como JSON
-          Map<String, dynamic> jsonResponse = jsonDecode(response);
-          print('Resposta do servidor (JSON): $jsonResponse');
+          print('Resposta do servidor: $response');
         } catch (e) {
-          print('Erro ao decodificar a resposta: $response, $e');
+          print('Erro ao decodificar a resposta: $e');
         }
       });
       // Fecha a conexão
@@ -37,4 +35,37 @@ class SocketService {
       print('Erro ao enviar mensagem: $e');
     }
   }
+
+  //Future<void> enviarDados() async {
+  //  print('Enviando dados...');
+  //  final String url = 'http://10.0.2.2:3000'; // Use 10.0.2.2 para emulador Android
+//
+  //  // Dados que você deseja enviar
+  //  final Map<String, dynamic> dados = {
+  //    'operacao': 'inserir',
+  //    'colecao': 'exemplo',
+  //    'parametros': {'nome': 'João', 'idade': 30}
+  //  };
+  //  print('Dados que estão sendo enviados: ${jsonEncode(dados)}');
+//
+  //  // Envio da requisição POST
+  //  try {
+  //    print('conectando ao servidor...');
+  //    final response = await http.post(
+  //      Uri.parse(url),
+  //      headers: {'Content-Type': 'application/json'},
+  //      body: jsonEncode(dados),
+  //    );
+//
+//
+  //    if (response.statusCode == 200) {
+  //      print('Resposta do servidor: ${response.body}');
+  //    } else {
+  //      print('Erro ao enviar dados: ${response.statusCode}');
+  //    }
+  //  } catch (e) {
+  //    print('Erro: $e');
+  //  }
+  //}
+
 }

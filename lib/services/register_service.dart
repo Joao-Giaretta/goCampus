@@ -8,13 +8,9 @@ class RegisterService {
   }) async {
     // Cria um mapa com os dados do usuário
     Map<String, dynamic> message = {
-      'operacao': 'POST',
-      'colecao': 'Usuario',
-      'parametros': {
       'name': name,
       'email': email,
       'birthday': birthday,
-      }
     };
     // Envia a mensagem para o servidor
     await SocketService.sendMessage(message);

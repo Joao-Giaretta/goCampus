@@ -1,9 +1,10 @@
+
 import 'package:flutter/material.dart';
 import 'package:go_campus/login_screen.dart';
 import 'package:go_campus/services/register_service.dart';
+import 'package:go_campus/services/socket_service.dart';
 import 'services/auth_service.dart';
 import 'services/date_picker_service.dart';
-import 'services/register_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
