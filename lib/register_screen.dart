@@ -1,10 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_campus/login_screen.dart';
 import 'package:go_campus/services/register_service.dart';
-import 'package:go_campus/services/socket_service.dart';
 import 'services/auth_service.dart';
 import 'services/date_picker_service.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,19 +20,29 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscureTextConfirm = true;
   DateTime? _selectedDate;
 
+  late MaskedTextController _cpfCnpjController;
+
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final TextEditingController _cpfCnpjController = TextEditingController();
-  final TextEditingController _cepController = TextEditingController();
+  final MaskedTextController _cepController = MaskedTextController(mask: '00000-000');
   final TextEditingController _logradouroController = TextEditingController();
   final TextEditingController _cidadeController = TextEditingController();
   final TextEditingController _numeroController = TextEditingController();
-  final TextEditingController _estadoController = TextEditingController();
+  final TextEditingController _bairroController = TextEditingController();
   final TextEditingController _dataNascimentoController = TextEditingController();
 
   final RegisterService _registerService = RegisterService();
+  String? _selectedEstado;
+
+  @override
+  void initState() {
+    super.initState();
+    _cpfCnpjController = MaskedTextController(
+      mask: isPersonPhysical ? '000.000.000-00' : '00.000.000/0000-00',
+    );
+  }
 
   void _register() async {
     String email = _emailController.text.trim();
@@ -88,6 +99,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onChanged: (value) {
                         setState(() {
                           isPersonPhysical = true;
+                          _cpfCnpjController.updateMask(isPersonPhysical ? '000.000.000-00' : '00.000.000/0000-00');
                         });
                       },
                     ),
@@ -98,6 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       onChanged: (value) {
                         setState(() {
                           isPersonPhysical = false;
+                          _cpfCnpjController.updateMask(isPersonPhysical ? '000.000.000-00' : '00.000.000/0000-00');
                         });
                       },
                     ),
@@ -142,12 +155,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         initialDate: _selectedDate,
                       );
                     },
-                  )
+                  ),
+                  const SizedBox(height: 20),
                 ] else ...[
                   TextField(
                     controller: _cpfCnpjController,
-                    decoration: const InputDecoration(
-                        labelText: 'CNPJ', prefixIcon: Icon(Icons.business)),
+                    decoration: InputDecoration(
+                      labelText: isPersonPhysical ? 'CPF' : 'CNPJ',
+                      prefixIcon: Icon(isPersonPhysical ? Icons.description : Icons.business),
+                    ),
                   ),
                   const SizedBox(height: 20),
                   TextField(
@@ -167,6 +183,24 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    controller: _numeroController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: const InputDecoration(
+                      labelText: 'Número',
+                      prefixIcon: Icon(Icons.numbers),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _bairroController,
+                    decoration: const InputDecoration(
+                      labelText: 'Bairro',
+                      prefixIcon: Icon(Icons.location_city),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
                     controller: _cidadeController,
                     decoration: const InputDecoration(
                       labelText: 'Cidade',
@@ -174,16 +208,23 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  TextField(
-                    controller: _numeroController,
-                    decoration: const InputDecoration(
-                      labelText: 'Número',
-                      prefixIcon: Icon(Icons.confirmation_number),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _estadoController,
+                  DropdownButtonFormField<String>(
+                    value: _selectedEstado,
+                    items: [
+                      'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 
+                      'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 
+                      'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+                    ].map((String estado) {
+                      return DropdownMenuItem<String>(
+                        value: estado,
+                        child: Text(estado),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedEstado = newValue!;
+                      });
+                    },
                     decoration: const InputDecoration(
                       labelText: 'Estado',
                       prefixIcon: Icon(Icons.flag),

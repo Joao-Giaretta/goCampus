@@ -36,36 +36,4 @@ class SocketService {
     }
   }
 
-  //Future<void> enviarDados() async {
-  //  print('Enviando dados...');
-  //  final String url = 'http://10.0.2.2:3000'; // Use 10.0.2.2 para emulador Android
-//
-  //  // Dados que você deseja enviar
-  //  final Map<String, dynamic> dados = {
-  //    'operacao': 'inserir',
-  //    'colecao': 'exemplo',
-  //    'parametros': {'nome': 'João', 'idade': 30}
-  //  };
-  //  print('Dados que estão sendo enviados: ${jsonEncode(dados)}');
-//
-  //  // Envio da requisição POST
-  //  try {
-  //    print('conectando ao servidor...');
-  //    final response = await http.post(
-  //      Uri.parse(url),
-  //      headers: {'Content-Type': 'application/json'},
-  //      body: jsonEncode(dados),
-  //    );
-//
-//
-  //    if (response.statusCode == 200) {
-  //      print('Resposta do servidor: ${response.body}');
-  //    } else {
-  //      print('Erro ao enviar dados: ${response.statusCode}');
-  //    }
-  //  } catch (e) {
-  //    print('Erro: $e');
-  //  }
-  //}
-
 }
