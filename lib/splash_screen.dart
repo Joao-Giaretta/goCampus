@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'login_screen.dart'; // Importa a tela de login
+import 'login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'search_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -8,11 +10,23 @@ class SplashScreen extends StatefulWidget {
   _SplashScreenState createState() => _SplashScreenState();
 }
 
+
 class _SplashScreenState extends State<SplashScreen> {
+
+  Future<void> _checkLoginStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    if (isLoggedIn) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SearchScreen()));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     Timer(Duration(seconds: 2), () {
+      _checkLoginStatus();
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
             builder: (context) => LoginScreen()), // Navega para LoginScreen

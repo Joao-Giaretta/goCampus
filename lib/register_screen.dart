@@ -61,15 +61,46 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  void _registerServer() async {
+  void _registerServerUser() async {
     String name = _nameController.text.trim();
     String email = _emailController.text.trim();
     String birthday = _dataNascimentoController.text.trim();
+    String cpf = _cpfCnpjController.text.trim();
 
     await _registerService.registerUser(
       name: name,
       email: email,
+      cpf: cpf,
       birthday: birthday,
+    );
+
+    // Exibe uma mensagem de sucesso
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Dados enviados ao servidor!'))
+    );
+  }
+
+  void _registerServerBussiness() async {
+    String name = _nameController.text.trim();
+    String email = _emailController.text.trim();
+    String cnpj = _cpfCnpjController.text.trim();
+    String cep = _cepController.text.trim();
+    String logradouro = _logradouroController.text.trim();
+    String numero = _numeroController.text.trim();
+    String bairro = _bairroController.text.trim();
+    String cidade = _cidadeController.text.trim();
+    String estado = _selectedEstado!;
+
+    await _registerService.registerBussiness(
+      name: name,
+      email: email,
+      cnpj: cnpj,
+      cep: cep,
+      logradouro: logradouro,
+      numero: numero,
+      bairro: bairro,
+      cidade: cidade,
+      estado: estado,
     );
 
     // Exibe uma mensagem de sucesso
@@ -272,7 +303,19 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 20),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _registerServer,
+                    onPressed: () {
+                      if (_passwordController.text == _confirmPasswordController.text) {
+                        if (isPersonPhysical) {
+                          _registerServerUser();
+                        } else {
+                          _registerServerBussiness();
+                        }
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Senhas não conferem!'))
+                        );
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
                       padding: const EdgeInsets.symmetric(

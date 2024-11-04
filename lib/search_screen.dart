@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_campus/services/register_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/auth_service.dart';
 import 'login_screen.dart';
+import 'dart:convert';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -14,24 +16,46 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _startController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
   final AuthService _authService = AuthService();
+  final RegisterService _registerService = RegisterService();
   List<String> _companies = [];
   bool _showResults = false;
 
-  void _searchCompanies() {
-    setState(() {
-      if (_startController.text.isNotEmpty &&
-          _destinationController.text.isNotEmpty) {
-        _companies = [
-          'Empresa X - ${_startController.text} - ${_destinationController.text}',
-          'Empresa Y - ${_startController.text} - ${_destinationController.text}',
-          'Empresa Z - ${_startController.text} - ${_destinationController.text}',
-        ];
-        _showResults = true;
-      } else {
-        _companies = [];
-        _showResults = false;
-      }
-    });
+  Future<void> _searchCompanies() async{
+    if (_startController.text.isNotEmpty &&
+        _destinationController.text.isNotEmpty) {
+        Map<String, dynamic> parametros = {
+          'cidadePartida': _startController.text,
+          'instituicaoDestino': _destinationController.text,
+        };
+        final response = await _registerService.enviarOperacao("GET", "Empresa", {});
+        print(response);
+        if (response != null && response.isNotEmpty) {
+            try {
+                // Aqui é onde você deve decodificar a string JSON
+                List<dynamic> empresas = jsonDecode(response['message']); // Decodificando a string
+                setState(() {
+                    _companies = List<String>.from(empresas.map((empresa) => empresa['name']));
+                    _showResults = true;
+                });
+            } catch (e) {
+                print('Erro ao decodificar JSON: $e'); // Captura de erro para depuração
+                setState(() {
+                    _companies = [];
+                    _showResults = false;
+                });
+            }
+        } else {
+            setState(() {
+                _companies = [];
+                _showResults = false;
+            });
+        }
+    } else {
+        setState(() {
+            _companies = [];
+            _showResults = false;
+        });
+    }
   }
 
   void _logout() async {

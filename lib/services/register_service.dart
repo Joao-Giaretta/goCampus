@@ -1,19 +1,48 @@
-import 'socket_service.dart';
+import 'package:flutter/services.dart';
 
 class RegisterService {
+  static const MethodChannel _channel = MethodChannel("com.example.go_campus/app");
+
+  Future<Map<String, dynamic>?> enviarOperacao(String operacao, String colecao, Map<String, dynamic> parametros) async {
+    try {
+      final response = await _channel.invokeMethod('enviarPedido', {
+        'operacao': operacao,
+        'colecao': colecao,
+        'parametros': parametros,
+      });
+      return Map<String, dynamic>.from(response);
+    } on PlatformException catch (e) {
+      print("Erro ao chamar o servidor: ${e.message}");
+      return null;
+    }
+  }
+
   Future<void> registerUser({
     required String name,
     required String email,
+    required String cpf,
     required String birthday,
   }) async {
     // Cria um mapa com os dados do usuário
-    Map<String, dynamic> message = {
+    Map<String, dynamic> docNovo = {
       'name': name,
       'email': email,
+      'cpf': cpf,
       'birthday': birthday,
     };
+
+    // Encapsula o mapa dentro de outro mapa, com a chave 'docNovo'
+    Map<String, dynamic> parametros = {'docNovo': docNovo};
+    
+    print("Enviando dados: $parametros");
     // Envia a mensagem para o servidor
-    await SocketService.sendMessage(message);
+    final response = await enviarOperacao("POST", "Usuario", parametros);
+    if (response != null) {
+      // Trate a resposta aqui, se necessário
+      print("Resposta do servidor: $response");
+    } else {
+      print("Falha ao registrar o usuário.");
+    }
   }
 
   Future<void> registerBussiness({
@@ -27,11 +56,9 @@ class RegisterService {
     required String cidade,
     required String estado,
   }) async {
-    // Cria um mapa com os dados do usuário
-    Map<String, dynamic> message = {
-      'name': name,
-      'email': email,
-      'cnpj': cnpj,
+
+    // Cria um mapa para endereco
+    Map<String, dynamic> endereco = {
       'cep': cep,
       'logradouro': logradouro,
       'numero': numero,
@@ -39,7 +66,25 @@ class RegisterService {
       'cidade': cidade,
       'estado': estado,
     };
+
+    // Cria um mapa com os dados do usuário
+    Map<String, dynamic> docNovo = {
+      'name': name,
+      'email': email,
+      'cnpj': cnpj,
+      'endereco': endereco,
+    };
+
+    // Encapsula o mapa dentro de outro mapa, com a chave 'docNovo'
+    Map<String, dynamic> parametros = {'docNovo': docNovo};
     // Envia a mensagem para o servidor
-    await SocketService.sendMessage(message);
+    try {
+      // Chama o método Java via MethodChannel
+      print("Enviando dados: $parametros");
+      final response = await enviarOperacao("POST", "Empresa", parametros);
+      print('Resposta do servidor: $response');
+    } on PlatformException catch (e) {
+      print('Erro ao chamar o método registerBusiness no Java: ${e.message}');
+    }
   }
 }
