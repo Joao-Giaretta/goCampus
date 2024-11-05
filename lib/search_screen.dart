@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_campus/company_details_screen.dart';
 import 'package:go_campus/services/register_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/auth_service.dart';
@@ -17,7 +18,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _destinationController = TextEditingController();
   final AuthService _authService = AuthService();
   final RegisterService _registerService = RegisterService();
-  List<String> _companies = [];
+  List<Map<String, dynamic>> _companies =[];
   bool _showResults = false;
 
   Future<void> _searchCompanies() async{
@@ -27,16 +28,16 @@ class _SearchScreenState extends State<SearchScreen> {
           'cidadePartida': _startController.text,
           'instituicaoDestino': _destinationController.text,
         };
-        final response = await _registerService.enviarOperacao("GET", "Empresa", {});
+        final response = await _registerService.enviarOperacao("GET", "Empresa", parametros);
         print(response);
         if (response != null && response.isNotEmpty) {
             try {
-                // Aqui é onde você deve decodificar a string JSON
-                List<dynamic> empresas = jsonDecode(response['message']); // Decodificando a string
-                setState(() {
-                    _companies = List<String>.from(empresas.map((empresa) => empresa['name']));
-                    _showResults = true;
-                });
+              // Aqui é onde você deve decodificar a string JSON
+              List<dynamic> empresas = jsonDecode(response['message']); // Decodificando a string
+              setState(() {
+                _companies = List<Map<String, dynamic>>.from(empresas.map((empresa) => empresa as Map<String, dynamic>));
+                _showResults = true;
+              });
             } catch (e) {
                 print('Erro ao decodificar JSON: $e'); // Captura de erro para depuração
                 setState(() {
@@ -146,9 +147,20 @@ class _SearchScreenState extends State<SearchScreen> {
                     const NeverScrollableScrollPhysics(), // Desativa a rolagem interna da ListView
                 itemCount: _companies.length,
                 itemBuilder: (context, index) {
+                  final company = _companies[index];
                   return Card(
                     child: ListTile(
-                      title: Text(_companies[index]),
+                      title: Text(company['name']),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CompanyDetailsScreen(
+                              company: company
+                            ),
+                          ),
+                        );
+                      }
                     ),
                   );
                 },

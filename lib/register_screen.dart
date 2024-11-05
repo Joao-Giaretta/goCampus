@@ -32,6 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _numeroController = TextEditingController();
   final TextEditingController _bairroController = TextEditingController();
   final TextEditingController _dataNascimentoController = TextEditingController();
+  final TextEditingController _telefoneController = MaskedTextController(mask: '(00) 00000-0000');
 
   final RegisterService _registerService = RegisterService();
   String? _selectedEstado;
@@ -90,6 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
     String bairro = _bairroController.text.trim();
     String cidade = _cidadeController.text.trim();
     String estado = _selectedEstado!;
+    String telefone = _telefoneController.text.trim();
 
     await _registerService.registerBussiness(
       name: name,
@@ -101,6 +103,7 @@ class _RegisterPageState extends State<RegisterPage> {
       bairro: bairro,
       cidade: cidade,
       estado: estado,
+      telefone: telefone,
     );
 
     // Exibe uma mensagem de sucesso
@@ -194,6 +197,14 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: InputDecoration(
                       labelText: isPersonPhysical ? 'CPF' : 'CNPJ',
                       prefixIcon: Icon(isPersonPhysical ? Icons.description : Icons.business),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _telefoneController,
+                    decoration: const InputDecoration(
+                      labelText: 'Telefone',
+                      prefixIcon: Icon(Icons.phone),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -307,8 +318,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       if (_passwordController.text == _confirmPasswordController.text) {
                         if (isPersonPhysical) {
                           _registerServerUser();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen())
+                          );
                         } else {
                           _registerServerBussiness();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen())
+                          );
                         }
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(

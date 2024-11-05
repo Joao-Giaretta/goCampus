@@ -55,6 +55,7 @@ class RegisterService {
     required String bairro,
     required String cidade,
     required String estado,
+    required String telefone,
   }) async {
 
     // Cria um mapa para endereco
@@ -72,6 +73,7 @@ class RegisterService {
       'name': name,
       'email': email,
       'cnpj': cnpj,
+      'telefone': telefone,
       'endereco': endereco,
     };
 
