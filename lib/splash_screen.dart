@@ -3,6 +3,7 @@ import 'dart:async';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'search_screen.dart';
+import 'company_evaluation_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,8 +19,11 @@ class _SplashScreenState extends State<SplashScreen> {
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     if (isLoggedIn) {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => SearchScreen()));
-    }
+
+      //Page apenas para teste
+      context, MaterialPageRoute(builder: (context) => EvaluationPage(company: {"name": "Ferrari"})));    }
+      // context, MaterialPageRoute(builder: (context) => SearchScreen()))); 
+
   }
 
   @override
