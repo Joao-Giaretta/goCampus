@@ -1,34 +1,85 @@
 import 'package:flutter/material.dart';
 import 'company_evaluation_screen.dart';
+import 'package:go_campus/services/register_service.dart';
 
-class CompanyDetailsScreen extends StatelessWidget {
+class CompanyDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> company;
 
   const CompanyDetailsScreen({Key? key, required this.company}) : super(key: key);
+
+  @override
+  _CompanyDetailsScreenState createState() => _CompanyDetailsScreenState();
+}
+
+class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
+  double _mediaEvaluation = 0.0;
+  final RegisterService _registerService = RegisterService();
+
+  @override
+  void initState() {
+    super.initState();
+    _getMediaEvaluation();
+  }
+
+  Future<void> _getMediaEvaluation() async {
+    Map<String, dynamic> media = {
+      'idEmpresa': widget.company['id'],
+    };
+
+    Map<String, dynamic> parametros = {'docNovo': media};
+
+    final response = await _registerService.enviarOperacao("GET", "Avaliacao", parametros);
+
+    if (response != null && response.isNotEmpty) {
+      List<dynamic> avaliacoes = response['avaliacao'];
+      double total = 0.0;
+      for (var avaliacao in avaliacoes) {
+        total += avaliacao['grade'];
+      }
+      setState(() {
+        _mediaEvaluation = total / avaliacoes.length;
+      });
+    } else {
+      setState(() {
+        print("Nenhuma avaliação encontrada para esta empresa.");
+        _mediaEvaluation = 0.0;
+      });
+    }
+  }
 
   void evaluate(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => EvaluationPage(company: company),
+        builder: (context) => EvaluationPage(company: widget.company),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final endereco = company['endereco'];
-    final trajetos = company['trajetos'];
+    final endereco = widget.company['endereco'];
+    final trajetos = widget.company['trajetos'];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(company['name']),
+        title: Text(widget.company['name']),
         actions: [
           IconButton(
             icon: const Icon(Icons.star),
             onPressed: () => evaluate(context),
           ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(30.0),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Text(
+              'Média de Avaliação: $_mediaEvaluation',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -48,7 +99,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['name']}',
+                '${widget.company['name']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -57,7 +108,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['cnpj']}',
+                '${widget.company['cnpj']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -158,7 +209,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['telefone']}',
+                '${widget.company['telefone']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 8),
@@ -167,7 +218,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['email']}',
+                '${widget.company['email']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
