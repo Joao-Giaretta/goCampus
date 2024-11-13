@@ -59,20 +59,44 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  void _logout() async {
+void _logout() async {
+  bool? confirmLogout = await showDialog<bool>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Confirmar Logout'),
+        content: const Text('Você tem certeza que deseja sair?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(false);
+            },
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(true); 
+            },
+            child: const Text('Sair'),
+          ),
+        ],
+      );
+    },
+  );
+
+  if (confirmLogout == true) {
     // Logout do Firebase
     _authService.signOut();
     // Remover dados do SharedPreferences
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-        'isLoggedIn', false); // Defina a chave isLoggedIn como false
-    await prefs
-        .remove('userEmail'); // Remova a chave usada para armazenar o email
+    await prefs.setBool('isLoggedIn', false); // Defina a chave isLoggedIn como false
+    await prefs.remove('userEmail'); // Remova a chave usada para armazenar o email
 
     // Navegar de volta para a tela de login
     Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      context, MaterialPageRoute(builder: (context) => LoginScreen()));
   }
+}
 
   @override
   Widget build(BuildContext context) {
