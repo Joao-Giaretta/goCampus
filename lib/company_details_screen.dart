@@ -1,18 +1,36 @@
 import 'package:flutter/material.dart';
+import 'company_evaluation_screen.dart';
 
-class CompanyDetailsScreen extends StatelessWidget {
+class CompanyDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> company;
 
   const CompanyDetailsScreen({Key? key, required this.company}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final endereco = company['endereco'];
-    final trajetos = company['trajetos'];
+  _CompanyDetailsScreenState createState() => _CompanyDetailsScreenState();
+}
 
-        return Scaffold(
+class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
+
+  void evaluate(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EvaluationPage(company: widget.company),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final endereco = widget.company['endereco'];
+    final trajetos = widget.company['trajetos'];
+    final avaliacoes = widget.company['avaliacoes'];
+    final mediaAvl = widget.company['mediaAvl'] ?? 0;
+
+    return Scaffold(
       appBar: AppBar(
-        title: Text(company['name']),
+        title: Text(widget.company['name']),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -32,7 +50,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['name']}',
+                '${widget.company['name']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -41,7 +59,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['cnpj']}',
+                '${widget.company['cnpj']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -142,7 +160,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['telefone']}',
+                '${widget.company['telefone']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 8),
@@ -151,7 +169,7 @@ class CompanyDetailsScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               Text(
-                '${company['email']}',
+                '${widget.company['email']}',
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 16),
@@ -167,6 +185,97 @@ class CompanyDetailsScreen extends StatelessWidget {
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Avaliações:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => evaluate(context), // Função para avaliar
+                    child: Text('Deixar Avaliação'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              // Verifica se existe avaliações ou se a média é 0
+              (avaliacoes.isEmpty || mediaAvl == 0)
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                      child: Text(
+                        'Não existem avaliações para esta empresa.',
+                        style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Media das Avaliações: ',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return Icon(
+                                    index < mediaAvl
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                  );
+                                }),
+                              ),
+                            ],
+                          )
+                        ),
+                        
+                        SizedBox(height: 8),
+                        for (var avaliacao in avaliacoes)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Avaliação de ${avaliacao['nomeUsuario']}',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Nota: ',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    Row(
+                                      children: List.generate(5, (index) {
+                                        return Icon(
+                                          index < avaliacao['nota']
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                        );
+                                      }),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  'Comentário: ${avaliacao['comentario']}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
             ],
           ),
         ),

@@ -28,7 +28,7 @@ class _SearchScreenState extends State<SearchScreen> {
           'cidadePartida': _startController.text,
           'instituicaoDestino': _destinationController.text,
         };
-        final response = await _registerService.enviarOperacao("GET", "Empresa", parametros);
+        final response = await _registerService.enviarOperacao("GETEMPRESAS", "Empresa", parametros);
         print(response);
         if (response != null && response.isNotEmpty) {
             try {
@@ -178,3 +178,4 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 }
+
