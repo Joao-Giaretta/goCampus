@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/auth_service.dart';
 import 'register_screen.dart';
+import 'services/register_service.dart';
 import 'search_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
+  final RegisterService _registerService = RegisterService();
   bool _obscureText = true;
 
   Future<void> _login() async {
@@ -28,6 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('userEmail', email);
+      _registerService.saveUserName(email);
       // Navegar para a tela SearchScreen
       Navigator.pushReplacement(
         context,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'company_evaluation_screen.dart';
-import 'package:go_campus/services/register_service.dart';
 
 class CompanyDetailsScreen extends StatefulWidget {
   final Map<String, dynamic> company;
@@ -12,40 +11,6 @@ class CompanyDetailsScreen extends StatefulWidget {
 }
 
 class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
-  double _mediaEvaluation = 0.0;
-  final RegisterService _registerService = RegisterService();
-
-  @override
-  void initState() {
-    super.initState();
-    _getMediaEvaluation();
-  }
-
-  Future<void> _getMediaEvaluation() async {
-    Map<String, dynamic> media = {
-      'idEmpresa': widget.company['id'],
-    };
-
-    Map<String, dynamic> parametros = {'docNovo': media};
-
-    final response = await _registerService.enviarOperacao("GET", "Avaliacao", parametros);
-
-    if (response != null && response.isNotEmpty) {
-      List<dynamic> avaliacoes = response['avaliacao'];
-      double total = 0.0;
-      for (var avaliacao in avaliacoes) {
-        total += avaliacao['grade'];
-      }
-      setState(() {
-        _mediaEvaluation = total / avaliacoes.length;
-      });
-    } else {
-      setState(() {
-        print("Nenhuma avaliação encontrada para esta empresa.");
-        _mediaEvaluation = 0.0;
-      });
-    }
-  }
 
   void evaluate(BuildContext context) {
     Navigator.push(
@@ -60,26 +25,12 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
   Widget build(BuildContext context) {
     final endereco = widget.company['endereco'];
     final trajetos = widget.company['trajetos'];
+    final avaliacoes = widget.company['avaliacoes'];
+    final mediaAvl = widget.company['mediaAvl'] ?? 0;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.company['name']),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () => evaluate(context),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(30.0),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              'Média de Avaliação: $_mediaEvaluation',
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-            ),
-          ),
-        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -234,6 +185,97 @@ class _CompanyDetailsScreenState extends State<CompanyDetailsScreen> {
                     style: TextStyle(fontSize: 16),
                   ),
                 ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Avaliações:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => evaluate(context), // Função para avaliar
+                    child: Text('Deixar Avaliação'),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              // Verifica se existe avaliações ou se a média é 0
+              (avaliacoes.isEmpty || mediaAvl == 0)
+                  ? Padding(
+                      padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                      child: Text(
+                        'Não existem avaliações para esta empresa.',
+                        style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic),
+                      ),
+                    )
+                  : Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Media das Avaliações: ',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return Icon(
+                                    index < mediaAvl
+                                        ? Icons.star
+                                        : Icons.star_border,
+                                    color: Colors.amber,
+                                  );
+                                }),
+                              ),
+                            ],
+                          )
+                        ),
+                        
+                        SizedBox(height: 8),
+                        for (var avaliacao in avaliacoes)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, top: 8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Avaliação de ${avaliacao['nomeUsuario']}',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      'Nota: ',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    Row(
+                                      children: List.generate(5, (index) {
+                                        return Icon(
+                                          index < avaliacao['nota']
+                                              ? Icons.star
+                                              : Icons.star_border,
+                                          color: Colors.amber,
+                                        );
+                                      }),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  'Comentário: ${avaliacao['comentario']}',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
             ],
           ),
         ),

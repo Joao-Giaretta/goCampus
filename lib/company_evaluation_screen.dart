@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:go_campus/services/register_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EvaluationPage extends StatefulWidget {
   final Map<String, dynamic> company;
@@ -16,15 +17,23 @@ class _EvaluationPageState extends State<EvaluationPage> {
   final RegisterService _registerService = RegisterService();
   double _rating = 0.0;
 
+  Future<String> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('userName'));
+    return prefs.getString('userName') ?? '';
+  }
+
   Future<void> _sendAvaliation() async {
     String comment = _commentController.text.trim();
 
     if (_rating > 0 && comment.isNotEmpty) {
+      String nomeUsuario = await getUserName();
       // Cria um mapa com os dados da avaliação
       Map<String, dynamic> avaliacao = {
-        'idEmpresa': widget.company['id'],
+        'cnpj': widget.company['cnpj'],
+        'nomeUsuario': nomeUsuario,
         'comentario': comment,
-        'avaliacao': _rating,
+        'nota': _rating,
       };
 
       // Encapsula o mapa dentro de outro mapa, com a chave 'docNovo'
@@ -32,7 +41,7 @@ class _EvaluationPageState extends State<EvaluationPage> {
 
       print("Enviando dados: $parametros");
       // Envia a mensagem para o servidor
-      final response = await _registerService.enviarOperacao("POST", "Avaliacao", parametros);
+      final response = await _registerService.enviarOperacao("ADDAVL", "Empresa", parametros);
 
       if (response != null) {
         print("Avaliação enviada com sucesso.");
@@ -67,7 +76,7 @@ class _EvaluationPageState extends State<EvaluationPage> {
       appBar: AppBar(
         title: Text(widget.company['name']),
       ),
-      body: Padding(
+      body: SingleChildScrollView(  // Torna o corpo da tela rolável
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

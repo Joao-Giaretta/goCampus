@@ -81,9 +81,9 @@ class MainActivity : FlutterActivity() {
                         resposta["status"] = "success"
                         resposta["message"] = resultado.toString()
                     }
-                    is PedidoDeResultado -> {
+                    is org.example.cliente.PedidoDeResultado -> {
                         resposta["status"] = "success"
-                        resposta["data"] = listOf(resultado.toString())
+                        resposta["message"] = resultado.toString()
                     }
                     else -> {
                         resposta["status"] = "error"
