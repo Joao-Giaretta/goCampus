@@ -72,12 +72,7 @@ class MainActivity : FlutterActivity() {
 
                 // Tratando diferentes tipos de respostas
                 when (resultado) {
-                    is List<*> -> {
-                        resposta["status"] = "success"
-                        resposta["data"] = resultado.map { it.toString() }
-                    }
                     is org.example.servidor.ComunicadoDeResultado -> {
-                        // Tratar como comunicado de resultado específico
                         resposta["status"] = "success"
                         resposta["message"] = resultado.toString()
                     }

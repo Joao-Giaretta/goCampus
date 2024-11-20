@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_campus/company_screen.dart';
 import 'dart:async';
 import 'login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,9 +17,16 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _checkLoginStatus() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+    String userType = prefs.getString('userType') ?? '';
     if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => SearchScreen())); 
+      if (userType == 'Usuario') {
+        Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => SearchScreen())); 
+      }
+      else if (userType == 'Empresa') {
+        Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => CompanyScreen())); 
+      }
     }
   } 
 

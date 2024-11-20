@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_campus/company_screen.dart';
 import 'services/auth_service.dart';
 import 'register_screen.dart';
 import 'services/register_service.dart';
@@ -30,12 +31,20 @@ class _LoginScreenState extends State<LoginScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('userEmail', email);
-      _registerService.saveUserName(email);
-      // Navegar para a tela SearchScreen
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SearchScreen()),
-      );
+      await _registerService.saveUserData(email);
+      String userType = prefs.getString('userType') ?? '';
+      if (userType == 'Usuario') {
+        // Navegar para a tela SearchScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SearchScreen()),
+        );
+      } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => CompanyScreen()),
+          );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Usuário ou senha inválidos')));
