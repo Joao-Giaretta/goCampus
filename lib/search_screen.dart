@@ -59,44 +59,44 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-void _logout() async {
-  bool? confirmLogout = await showDialog<bool>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirmar Logout'),
-        content: const Text('Você tem certeza que deseja sair?'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(true); 
-            },
-            child: const Text('Sair'),
-          ),
-        ],
-      );
-    },
-  );
-
-  if (confirmLogout == true) {
-    // Logout do Firebase
-    _authService.signOut();
-    // Remover dados do SharedPreferences
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isLoggedIn', false); // Defina a chave isLoggedIn como false
-    await prefs.remove('userEmail'); // Remova a chave usada para armazenar o email
-
-    // Navegar de volta para a tela de login
-    Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => LoginScreen()));
+  void _logout() async {
+    bool? confirmLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Logout'),
+          content: const Text('Você tem certeza que deseja sair?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); 
+              },
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
+    );
+  
+    if (confirmLogout == true) {
+      // Logout do Firebase
+      _authService.signOut();
+      // Remover dados do SharedPreferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false); // Defina a chave isLoggedIn como false
+      await prefs.remove('userEmail'); // Remova a chave usada para armazenar o email
+  
+      // Navegar de volta para a tela de login
+      Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -164,32 +164,34 @@ void _logout() async {
             ),
             const SizedBox(height: 16),
             if (_showResults)
-              ListView.builder(
-                shrinkWrap:
-                    true, // Evita que a lista ocupe todo o espaço disponível
-                physics:
-                    const NeverScrollableScrollPhysics(), // Desativa a rolagem interna da ListView
-                itemCount: _companies.length,
-                itemBuilder: (context, index) {
-                  final company = _companies[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(company['name']),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CompanyDetailsScreen(
-                              company: company
-                            ),
-                          ),
-                        );
-                      }
-                    ),
-                  );
-                },
-              ),
-          ],
+              _companies.isEmpty
+                ? const Text(
+                    'Nenhuma empresa encontrada',
+                    style: TextStyle(fontSize: 16, color: Colors.red),
+                    textAlign: TextAlign.center,
+                  )
+                : ListView.builder(
+                    shrinkWrap: true, // Evita que a lista ocupe todo o espaço disponível
+                    physics: const NeverScrollableScrollPhysics(), // Desativa a rolagem interna da ListView
+                    itemCount: _companies.length,
+                    itemBuilder: (context, index) {
+                      final company = _companies[index];
+                      return Card(
+                        child: ListTile(
+                            title: Text(company['name']),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CompanyDetailsScreen(company: company),
+                                ),
+                              );
+                            }),
+                      );
+                    },
+                  ),
+            ],
         ),
       ),
     );

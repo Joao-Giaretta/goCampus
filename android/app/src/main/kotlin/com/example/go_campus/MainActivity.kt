@@ -9,6 +9,7 @@ import java.net.Socket
 import org.example.Parceiro
 import org.example.cliente.PedidoDeOperacao
 import org.example.cliente.PedidoDeResultado
+import org.example.cliente.PedidoParaSair
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,6 +20,10 @@ import kotlin.collections.mutableMapOf
 
 class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.example.go_campus/app"
+    private var conexao: Socket? = null
+    private var transmissor: ObjectOutputStream? = null
+    private var receptor: ObjectInputStream? = null
+    private var parceiro: Parceiro? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -36,6 +41,36 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val host = "10.0.2.2"
+                val porta = 3000
+                conexao = Socket(host, porta)
+                println("Conectado ao servidor $host:$porta")
+                transmissor = ObjectOutputStream(conexao?.getOutputStream())
+                receptor = ObjectInputStream(conexao?.getInputStream())
+                parceiro = Parceiro(conexao!!, receptor!!, transmissor!!)
+                println("Conexão estabelecida e parceiro criado")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                parceiro?.receba(PedidoParaSair())
+                println("Desconectado do servidor")
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun executarPedido(
         operacao: String?, 
         colecao: String?, 
@@ -44,30 +79,17 @@ class MainActivity : FlutterActivity() {
     ) {
         // Executando em uma coroutine
         CoroutineScope(Dispatchers.IO).launch {
-            val host = "10.0.2.2" // ou o IP do servidor
-            val porta = 3000
             val resposta = mutableMapOf<String, Any>()
 
             try {
-                val conexao = Socket(host, porta)
-                println("Conectado ao servidor $host:$porta")
-                val transmissor = ObjectOutputStream(conexao.getOutputStream())
-                println("Transmissor criado")
-                val receptor = ObjectInputStream(conexao.getInputStream())
-                println("Receptor criado")
-
-                val parceiro = Parceiro(conexao, receptor, transmissor)
-                println("Parceiro criado")
-
                 // Enviar o pedido de operação
                 val pedido = PedidoDeOperacao(operacao!!, colecao!!, parametros ?: emptyMap())
                 println("Enviando pedido: $parametros")
 
-                parceiro.receba(pedido)
-
+                parceiro?.receba(pedido)
                 // Receber a resposta do servidor
-                parceiro.receba(PedidoDeResultado())
-                val resultado = parceiro.envie()
+                parceiro?.receba(PedidoDeResultado())
+                val resultado = parceiro?.envie()
                 println("Recebido resultado: $resultado")
 
                 // Tratando diferentes tipos de respostas
@@ -85,9 +107,6 @@ class MainActivity : FlutterActivity() {
                         resposta["message"] = "Tipo de resposta desconhecido do servidor"
                     }
                 }
-
-                // Desconectando do servidor
-                parceiro.adeus()
             } catch (e: Exception) {
                 e.printStackTrace()
                 resposta["status"] = "error"

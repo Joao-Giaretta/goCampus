@@ -45,7 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void _register() async {
+  _register(bool isPersonPhysical) async {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
     var user =
@@ -53,9 +53,12 @@ class _RegisterPageState extends State<RegisterPage> {
     if (user != null) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Cadastro bem-sucedido!')));
-      // Navegar para a tela principal ou fazer outra ação após cadastro
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+      if (isPersonPhysical) {
+        _registerServerUser();
+      } else {
+        _registerServerBussiness();
+      }
+
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Erro ao fazer cadastro')));
@@ -68,17 +71,23 @@ class _RegisterPageState extends State<RegisterPage> {
     String birthday = _dataNascimentoController.text.trim();
     String cpf = _cpfCnpjController.text.trim();
 
-    await _registerService.registerUser(
+    final res = await _registerService.registerUser(
       name: name,
       email: email,
       cpf: cpf,
       birthday: birthday,
     );
 
-    // Exibe uma mensagem de sucesso
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Dados enviados ao servidor!'))
-    );
+    if (res == 'success') {
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao registrar o usuário.'))
+      );
+    }
+
   }
 
   void _registerServerBussiness() async {
@@ -93,7 +102,7 @@ class _RegisterPageState extends State<RegisterPage> {
     String estado = _selectedEstado!;
     String telefone = _telefoneController.text.trim();
 
-    await _registerService.registerBussiness(
+    final res = await _registerService.registerBussiness(
       name: name,
       email: email,
       cnpj: cnpj,
@@ -106,10 +115,16 @@ class _RegisterPageState extends State<RegisterPage> {
       telefone: telefone,
     );
 
-    // Exibe uma mensagem de sucesso
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Dados enviados ao servidor!'))
-    );
+    if (res == 'success') {
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Erro ao registrar o usuário.'))
+      );
+    }
+
   }
 
   @override
@@ -316,19 +331,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_passwordController.text == _confirmPasswordController.text) {
-                        if (isPersonPhysical) {
-                          _registerServerUser();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen())
-                          );
-                        } else {
-                          _registerServerBussiness();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen())
-                          );
-                        }
+                        _register(isPersonPhysical);
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Senhas não conferem!'))

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterService {
+
   static const MethodChannel _channel = MethodChannel("com.example.go_campus/app");
 
   Future<Map<String, dynamic>?> enviarOperacao(String operacao, String colecao, Map<String, dynamic> parametros) async {
@@ -20,7 +21,7 @@ class RegisterService {
     }
   }
 
-  Future<void> registerUser({
+  Future registerUser({
     required String name,
     required String email,
     required String cpf,
@@ -44,12 +45,13 @@ class RegisterService {
     if (response != null) {
       // Trate a resposta aqui, se necessário
       print("Resposta do servidor: $response");
+      return response['status'];
     } else {
       print("Falha ao registrar o usuário.");
     }
   }
 
-  Future<void> registerBussiness({
+  Future registerBussiness({
     required String name,
     required String email,
     required String cnpj,
@@ -93,6 +95,13 @@ class RegisterService {
       print("Enviando dados: $parametros");
       final response = await enviarOperacao("ADD", "Empresa", parametros);
       print('Resposta do servidor: $response');
+      if (response != null) {
+        // Trate a resposta aqui, se necessário
+        print("Resposta do servidor: $response");
+        return response['status'];
+      } else {
+        print("Falha ao registrar a empresa.");
+      }
     } on PlatformException catch (e) {
       print('Erro ao chamar o método registerBusiness no Java: ${e.message}');
     }

@@ -117,19 +117,43 @@ class _CompanyScreenState extends State<CompanyScreen> {
     _getCompanyData();
   }
 
-  void _logout() async {
-    // Logout do Firebase
-    _authService.signOut();
-    // Remover dados do SharedPreferences
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(
-        'isLoggedIn', false); // Defina a chave isLoggedIn como false
-    await prefs
-        .remove('userEmail'); // Remova a chave usada para armazenar o email
-
-    // Navegar de volta para a tela de login
-    Navigator.pushReplacement(
+    void _logout() async {
+    bool? confirmLogout = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Logout'),
+          content: const Text('Você tem certeza que deseja sair?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); 
+              },
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
+    );
+  
+    if (confirmLogout == true) {
+      // Logout do Firebase
+      _authService.signOut();
+      // Remover dados do SharedPreferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', false); // Defina a chave isLoggedIn como false
+      await prefs.remove('userEmail'); // Remova a chave usada para armazenar o email
+  
+      // Navegar de volta para a tela de login
+      Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
   }
 
   Future _addTrajeto(String cnpj) async {
@@ -188,29 +212,55 @@ class _CompanyScreenState extends State<CompanyScreen> {
   }
 
   Future _deleteTrajeto(String cnpj, String cidadePartida, String instituicaoDestino) async {
-    final response = await RegisterService().deleteTrajeto(
-      cnpj,
-      cidadePartida,
-      instituicaoDestino,
+    bool? confirmDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Você tem certeza que deseja excluir o trajeto?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); 
+              },
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
     );
-    if (response != null && response['status'] == 'success') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Trajeto deletado com sucesso!'),
-          backgroundColor: Colors.green,
-        ),
+  
+    if (confirmDelete == true) {
+      final response = await RegisterService().deleteTrajeto(
+        cnpj,
+        cidadePartida,
+        instituicaoDestino,
       );
-      setState(() {
-        _getCompanyData();
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Falha ao deletar o trajeto.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+      if (response != null && response['status'] == 'success') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Trajeto deletado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        setState(() {
+          _getCompanyData();
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Falha ao deletar o trajeto.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } 
   }
   
 
