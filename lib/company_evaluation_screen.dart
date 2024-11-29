@@ -23,7 +23,7 @@ class _EvaluationPageState extends State<EvaluationPage> {
     return prefs.getString('userName') ?? '';
   }
 
-  Future<void> _sendAvaliation() async {
+  Future<void> _sendEvaluation() async {
     String comment = _commentController.text.trim();
 
     if (_rating > 0 && comment.isNotEmpty) {
@@ -124,7 +124,7 @@ class _EvaluationPageState extends State<EvaluationPage> {
             // Botão de envio
             Center(
               child: ElevatedButton(
-                onPressed: _sendAvaliation,
+                onPressed: _sendEvaluation,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   padding: const EdgeInsets.symmetric(
