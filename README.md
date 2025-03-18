@@ -18,10 +18,10 @@ O GoCampus é uma plataforma que conecta estudantes a empresas de transporte uni
 
 ## Tecnologias Utilizadas
 
-- **Frontend**: Flutter (para o aplicativo móvel)
-- **Backend**: Java (Spring Boot ou outra framework para o servidor)
+- **Frontend**: Flutter
+- **Backend**: Java
 - **Autenticação**: Firebase Authentication
-- **Banco de Dados**: MongoDB (para armazenamento de dados)
+- **Banco de Dados**: MongoDB
 
 ## Como Executar o Projeto
 
